@@ -1,5 +1,6 @@
 # Copyright (c) 2015 Daniel August
 # MIT License
+# Version 0.2.0
 
 # This code prints a calendar for a given year and month in the form:
 #
@@ -172,9 +173,13 @@ def stringCal year, month                       # Converts dates into printable 
     i += 1
   end
 
-  while i.modulo(7) != 6 && i.modulo(7) != 0     # Finishes out the last week with pipes
-    stringArray[i] = "|"
-    i += 1
+  if i.modulo(7) == 1
+    stringArray[i-1] = nil                      # Deletes extra pipe if month ends on Sun
+  else
+    while i.modulo(7) != 6 && i.modulo(7) != 0     # Finishes out the last week with pipes
+      stringArray[i] = "|"
+      i += 1
+    end
   end
 
   return(stringArray)
@@ -209,4 +214,22 @@ month = gets.to_i
 puts
 puts
 
-printCal year, month
+if month != 0                         # Prints a single month
+  printCal year, month
+else                                  # Prints a whole school year
+  month = 9                           # Sept - Dec
+  while month <= 12
+    printCal year, month
+    puts
+    month += 1
+  end
+
+  month = 1                           # Happy New Year!!
+  year += 1
+
+  while month <= 6                    # Prints Jan - June
+    printCal year, month
+    puts
+    month += 1
+  end
+end
