@@ -1,8 +1,8 @@
 # Copyright (c) 2015 Daniel August
 # MIT License
-# Version 0.2.0
+# Version 1.0.0
 
-# This code prints a calendar for a given year and month in the form:
+# This code prints a calendar for a given year and month in an array form:
 #
 #               ## OCTOBER 2015
 #
@@ -18,6 +18,22 @@
 #               ||||||
 #               |**26**|**27**|**28**|**29**|**30**|
 #               ||||||
+
+# Or a list form:
+#
+#              |------------------ JANUARY 2016 ------------------|
+#
+#               01 FR
+#               02 SA
+#               03 SU
+#
+#               04 MO
+#               05 TU
+#               06 WE
+#               07 TH
+#               08 FR
+#               09 SA
+#               10 SU
 
 # For rendering by phpmarkdownextra as an extension of mkdocs
 
@@ -85,7 +101,22 @@ def monthName month                   # Returns the name of a given month
   end
 end
 
-def stringDay date, i                  # Returns a date formatted for calendar
+def dayName weekness
+  case weekness
+  when 1
+    "MO"
+  when 2
+    "TU"
+  when 3
+    "WE"
+  when 4
+    "TH"
+  when 5
+    "FR"
+  end
+end
+
+def stringDayA date, i                  # Returns a date formatted for array calendar
 
   weekness = i.modulo(7)
 
@@ -102,6 +133,17 @@ def stringDay date, i                  # Returns a date formatted for calendar
       s = "**#{date}**|"
     end
   end
+  return(s)
+end
+
+def stringDayL date, weekness                  # Returns a date formatted for list calendar
+                                        # "weekness" refers to the numerical value
+  if date.to_i < 10                         # of the day of the week modulo 7:
+    s = "0#{date}  #{dayName weekness}"     # The weekness of Sunday is 0
+  else                                      # The weekness of Monday is 1
+    s = "#{date}  #{dayName weekness}"      # etc
+  end
+
   return(s)
 end
 
@@ -163,13 +205,13 @@ def alignCal year, month                     # Populates and returns an array
   return(dateArray)
 end
 
-def stringCal year, month                       # Converts dates into printable text
+def stringCalA year, month                       # Converts dates into printable text
 
   dateArray = (alignCal year, month)
   stringArray = []
   i = 0
   dateArray.each do |d|
-    stringArray[i] = (stringDay d, i)
+    stringArray[i] = (stringDayA d, i)
     i += 1
   end
 
@@ -186,18 +228,52 @@ def stringCal year, month                       # Converts dates into printable 
 
 end
 
-def printCal year, month                        # Prints calendar for given year, month
+def stringCalL year, month
 
-  stringArray = (stringCal year, month)
+  date = 1
+  weekness = (startMonth year, month)
+  max = monthMax year, month
 
-  puts "\#\# #{monthName month} #{year}"            # Prints header for calendar
   puts
-  puts "|  MO  |  TU  |  WE  |  TH  |  FR  |"
-  puts "|------|------|------|------|------|"
 
-  while stringArray[0] != nil                     # Prints out a week at a time
-    puts (stringArray.shift(7)).join
-    puts "||||||"
+  while date <= max
+    if weekness == 6
+    elsif weekness == 0 && (date >= 3 && date < max)
+      puts
+    elsif weekness == 0
+    else
+      puts stringDayL date, weekness
+    end
+
+    date += 1
+    weekness = (weekness + 1).modulo(7)
+
+  end
+
+end
+
+def printCal year, month, type     # Prints calendar for given year, month, as array or list
+
+  if type.upcase == "ARRAY"           # Array Calendar
+
+    stringArray = (stringCalA year, month)
+
+    puts "\#\# #{monthName month} #{year}"            # Prints header for calendar
+    puts
+    puts "|  MO  |  TU  |  WE  |  TH  |  FR  |"
+    puts "|------|------|------|------|------|"
+
+    while stringArray[0] != nil                     # Prints out a week at a time
+      puts (stringArray.shift(7)).join
+      puts "||||||"
+    end
+
+  else                                  # List Calendar
+
+    puts "|------------------ #{monthName month} #{year} ------------------|"
+    stringCalL year, month
+    puts
+
   end
 
 end
@@ -213,13 +289,17 @@ puts "What month?"
 month = gets.to_i
 puts
 puts
+puts "Do you want an array or list?"
+type = gets.chomp
+puts
+puts
 
 if month != 0                         # Prints a single month
-  printCal year, month
+  printCal year, month, type
 else                                  # Prints a whole school year
   month = 9                           # Sept - Dec
   while month <= 12
-    printCal year, month
+    printCal year, month, type
     puts
     month += 1
   end
@@ -228,7 +308,7 @@ else                                  # Prints a whole school year
   year += 1
 
   while month <= 6                    # Prints Jan - June
-    printCal year, month
+    printCal year, month, type
     puts
     month += 1
   end
