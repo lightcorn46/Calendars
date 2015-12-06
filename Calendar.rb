@@ -28,8 +28,8 @@
 # For rendering by phpmarkdownextra as an extension of mkdocs
 
 
-$calendarFile = "/calendarFile.txt"
-$importantDates = "/importantDates.txt"
+$calendarFile = "calendarFile.txt"
+$importantDates = "importantDates.txt"
 
 # ------------------------   iDATE CLASS   --------------------------- #
 #
@@ -381,7 +381,7 @@ class Calendar                                        # Collection of Days
       today = 1
 
       while (today <= month.max)
-        calList += (@days[(makeAddress @year, month, today)]).print
+        calList += (@days[(makeShortAddress month, today)]).print
         today += 1
       end
 
@@ -417,6 +417,10 @@ end
 #
 def makeAddress year, month, date
   10000*((month.number-1)*31+date)+year
+end
+
+def makeShortAddress month, date
+  (month.number - 1)*31+date
 end
 
 def addiDates address, event
